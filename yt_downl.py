@@ -14,9 +14,9 @@ class yt_downl(YouTube):
 
         self.set_export_path(export_path)
 
-        self.set_name(file_name)
-
         self.set_file_type(file_type)
+
+        self.set_name(file_name)
 
     def set_export_path(self, export_path):
         if path.isdir(export_path):
@@ -27,7 +27,10 @@ class yt_downl(YouTube):
 
     def set_name(self, file_name):
         if isinstance(file_name, str):
-            self.file_name = file_name+".mp4"
+            if self.file_type == 'video':
+                self.file_name = file_name+".mp4"
+            else:
+                self.file_name = file_name+".mp3"
         else:
             print("Not a string! Default will be applied.")
             self.file_name = self.title
@@ -42,7 +45,11 @@ class yt_downl(YouTube):
     def to_string(self):
         return "Name : " + self.file_name + ", file type : " + self.file_type + " and export path : " + self.export_path + "."
 
-    def downl_video(self):
-        to_downl = self.streams.get_highest_resolution()
+    def downl(self):
+        if self.file_type == 'audio':
+            to_downl = self.streams.get_audio_only()
+        else:
+            to_downl = self.streams.get_highest_resolution()
+
         to_downl.download(output_path=self.export_path,
                           filename=self.file_name)
