@@ -5,6 +5,8 @@ deft_export_path = path.normpath(path.expanduser("~/Desktop"))
 
 deft_file_type = 'video'
 
+deft_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley'
+
 
 class yt_downl(YouTube):
 
@@ -46,13 +48,6 @@ class yt_downl(YouTube):
         return "Name : " + self.file_name + ", file type : " + self.file_type + " and export path : " + self.export_path + "."
 
     def downl(self):
-        if path.exists(self.export_path+self.file_name):
-            overwrite = input("Path already exists, overwrite(y/n)? ")
-
-        if overwrite == "n":
-            print("The video was not converted!")
-            return
-
         if self.file_type == 'audio':
             to_downl = self.streams.get_audio_only()
         else:
