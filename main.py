@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Arnaud's YT Downloader")
 
-        self.setMinimumSize(QSize(500, 300))
+        self.setMinimumSize(QSize(700, 300))
 
         self.layout = QVBoxLayout()
 
@@ -82,6 +82,7 @@ class MainWindow(QMainWindow):
         print(self.user_filetype)
 
     def downlbutton_pressed(self):
+        self.status_label.setText("Exporting the video...")
         to_downl = yt_downl(self.url_box.text(),
                             export_path=self.path_box.text(), file_type=self.filetype_box.currentText().lower(), file_name=self.filename_box.text())
         to_downl.downl()
