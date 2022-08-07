@@ -24,7 +24,6 @@ class yt_downl(YouTube):
         if path.isdir(export_path):
             self.export_path = export_path
         else:
-            print("Not a valid path! Will set the desktop as the export path.")
             self.export_path = path.normpath(path.expanduser("~/Desktop"))
 
     def set_name(self, file_name):
@@ -34,14 +33,12 @@ class yt_downl(YouTube):
             else:
                 self.file_name = file_name+".mp3"
         else:
-            print("Not a string! Default will be applied.")
             self.file_name = self.title
 
     def set_file_type(self, file_type):
         if file_type == "audio" or file_type == "video":
             self.file_type = file_type
         else:
-            print("Not a string! Default will be applied.")
             self.file_type = 'video'
 
     def to_string(self):
