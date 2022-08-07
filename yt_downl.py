@@ -12,7 +12,13 @@ class yt_downl(YouTube):
 
     def __init__(self, url, export_path=deft_export_path, file_name=None, file_type=deft_file_type):
 
-        super().__init__(url)
+        try:
+            super().__init__(url)
+        except:
+            self.url_valid = False
+            return
+
+        self.url_valid = True
 
         self.set_export_path(export_path)
 

@@ -6,7 +6,8 @@ from PySide6.QtWidgets import (
     QWidget,
     QLabel,
     QComboBox,
-    QPushButton)
+    QPushButton,
+    QMessageBox)
 
 from PySide6.QtCore import QSize, Qt
 
@@ -31,7 +32,8 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(self.url_label)
 
         # text box to enter the url of the youtube video
-        self.url_box = QLineEdit()
+        self.url_box = QLineEdit(
+            "https://www.youtube.com/watch?v=SVcsDDABEkM&ab_channel=Vox")
         self.url_box.setPlaceholderText("URL of youtube video...")
         self.url_box.textChanged.connect(self.is_downloadable)
         self.layout.addWidget(self.url_box)
@@ -41,7 +43,7 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(self.filename_label)
 
         # text box to enter the name of the exported file
-        self.filename_box = QLineEdit()
+        self.filename_box = QLineEdit("untitled_video")
         self.filename_box.setPlaceholderText("Name of your file...")
         self.filename_box.textChanged.connect(self.is_downloadable)
         self.layout.addWidget(self.filename_box)
@@ -51,7 +53,7 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(self.path_label)
 
         # text box to enter the name of the export path
-        self.path_box = QLineEdit()
+        self.path_box = QLineEdit(path.normpath(path.expanduser("~/Desktop")))
         self.path_box.setPlaceholderText("Path for export...")
         self.path_box.textChanged.connect(self.is_downloadable)
         self.layout.addWidget(self.path_box)
@@ -68,7 +70,6 @@ class MainWindow(QMainWindow):
 
         # button to start the downlaod
         self.downl_button = QPushButton("Downl")
-        self.downl_button.setDisabled(True)
         self.downl_button.clicked.connect(self.downlbutton_pressed)
         self.layout.addWidget(self.downl_button)
 
@@ -81,16 +82,41 @@ class MainWindow(QMainWindow):
         self.widget.setLayout(self.layout)
         self.setMenuWidget(self.widget)
 
+    # method is called anytime the url_box, filename_box and path_box are edited
     def is_downloadable(self):
+        # checks the following:
+        # 1. the url box is non-empty
+        # 2. the path box is non-empty and contains a valid path
+        # 3. the filename box is non-empty
         if self.url_box.text() and path.exists(self.path_box.text()) and self.filename_box.text():
+            # enalbles user to press button if all conditions are met
             self.downl_button.setEnabled(True)
         else:
             self.downl_button.setEnabled(False)
 
     def downlbutton_pressed(self):
-        self.status_label.setText("Exporting the video...")
+
+        # initializing the download object
         to_downl = yt_downl(self.url_box.text(),
                             export_path=self.path_box.text(), file_type=self.filetype_box.currentText().lower(), file_name=self.filename_box.text())
+
+        if path.exists(str(to_downl.export_path+"/"+to_downl.file_name)):
+            overwrite_pop = QMessageBox()
+            overwrite_pop.setWindowTitle("Overwrite?")
+            overwrite_pop.setText(
+                "A file already exists at this path, do you want to overwrite it?")
+            overwrite_pop.setIcon(QMessageBox.Warning)
+            overwrite_pop.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
+            overwrite_pop.setDefaultButton(QMessageBox.No)
+            overwrite_pop.exec()
+
+        # will check if url is valid, if not it will no export
+        if not to_downl.url_valid:
+            self.status_label.setText("Invalid YouTube URL, please try again.")
+            return
+
+        # else downloading the video
+        self.status_label.setText("Exporting the video...")
         to_downl.downl()
         self.status_label.setText(
             "Video exported at : " + to_downl.export_path+"/"+to_downl.file_name)
