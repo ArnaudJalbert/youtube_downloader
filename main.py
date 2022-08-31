@@ -82,6 +82,8 @@ class MainWindow(QMainWindow):
         self.widget.setLayout(self.layout)
         self.setMenuWidget(self.widget)
 
+        self.cancel_downl = False
+
     # method is called anytime the url_box, filename_box and path_box are edited
     def is_downloadable(self):
         # checks the following:
@@ -95,7 +97,7 @@ class MainWindow(QMainWindow):
             self.downl_button.setEnabled(False)
 
     def downlbutton_pressed(self):
-
+        self.status_label.setText(None)
         # initializing the download object
         to_downl = yt_downl(self.url_box.text(),
                             export_path=self.path_box.text(), file_type=self.filetype_box.currentText().lower(), file_name=self.filename_box.text())
@@ -108,6 +110,7 @@ class MainWindow(QMainWindow):
             overwrite_pop.setIcon(QMessageBox.Warning)
             overwrite_pop.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
             overwrite_pop.setDefaultButton(QMessageBox.No)
+            overwrite_pop.buttonClicked.connect(self.overwrite_pop)
             overwrite_pop.exec()
 
         # will check if url is valid, if not it will no export
@@ -115,11 +118,21 @@ class MainWindow(QMainWindow):
             self.status_label.setText("Invalid YouTube URL, please try again.")
             return
 
+        if self.cancel_downl:
+            self.status_label.setText(
+                "Filename already exists, pick another one.")
+            self.cancel_downl = False
+            return
+
         # else downloading the video
         self.status_label.setText("Exporting the video...")
         to_downl.downl()
         self.status_label.setText(
             "Video exported at : " + to_downl.export_path+"/"+to_downl.file_name)
+
+    def overwrite_pop(self, i):
+        if (i.text()) == "&No":
+            self.cancel_downl = True
 
 
 app = QApplication([])
